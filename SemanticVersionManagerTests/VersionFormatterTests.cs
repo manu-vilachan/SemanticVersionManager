@@ -34,11 +34,28 @@
         /// Test GetJulianFormat method to prove when providing the date parameter use the value passed.
         /// </summary>
         [TestMethod]
-        public void GetJulianFormat_ProvidingDate_ReturnsTheValluePassedFormatted()
+        public void GetJulianFormat_ProvidingDate_ReturnsTheValuePassedFormatted()
         {
             // Arrange
             var dateProvided = DateTime.Now.AddDays(23);
             var expectedJulianDate = dateProvided.Year.ToString() + dateProvided.DayOfYear;
+
+            // Act
+            var returnedDate = new VersionFormatter().GetJulianFormat(dateProvided);
+
+            // Assert
+            Assert.AreEqual(expectedJulianDate, returnedDate);
+        }
+
+        /// <summary>
+        /// Test GetJulianFormat method to prove when providing the date parameter use the value passed.
+        /// </summary>
+        [TestMethod]
+        public void GetJulianFormat_ProvidingDateAtBegininOfYear_ReturnsTheValuePassedFormattedInTheFormYYDDD()
+        {
+            // Arrange
+            var dateProvided = new DateTime(DateTime.Today.Year, 1, 23);
+            var expectedJulianDate = dateProvided.Year.ToString() + "023";
 
             // Act
             var returnedDate = new VersionFormatter().GetJulianFormat(dateProvided);

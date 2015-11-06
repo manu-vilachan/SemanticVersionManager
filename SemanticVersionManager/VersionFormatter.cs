@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text.RegularExpressions;
+    using System.Threading;
 
     public class VersionFormatter
     {
@@ -120,6 +121,7 @@
             {
                 var mandatoryVarList = mandatoryVars.Aggregate(string.Empty, (s1, s2) => $"{s1}{(string.IsNullOrWhiteSpace(s1) ? string.Empty : ", ")}{s2}");
                 var valuesList = values.Select(k => k.Key).Aggregate(string.Empty, (s1, s2) => $"{s1}{(string.IsNullOrWhiteSpace(s1) ? string.Empty : ", ")}{s2}");
+
                 throw new ArgumentException($"The number of values is less than specified in the pattern or not all values has been provided.\nMandatory variables found: {mandatoryVarList}\nValues provided: {valuesList}", nameof(values));
             }
 
