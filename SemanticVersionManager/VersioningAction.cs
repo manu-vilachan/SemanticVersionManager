@@ -1,14 +1,9 @@
 ﻿namespace SemanticVersionManager
 {
-    public class VersioningAction
+    public enum VersioningAction
     {
-        public VersionAction Action { get; set; }
-
-    }
-
-    public enum VersionAction
-    {
-        Version,
-        Promote
+        Patch,
+        Promote,
+        SetNewVersion
     }
 }
