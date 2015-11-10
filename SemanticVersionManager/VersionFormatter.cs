@@ -20,7 +20,7 @@
         public string GetJulianFormat(DateTime? date = null)
         {
             date = date ?? DateTime.Now;
-            var julian = date.Value.Year.ToString() + date.Value.DayOfYear;
+            var julian = date.Value.Year.ToString() + date.Value.DayOfYear.ToString().PadLeft(3, '0');
             return julian;
         }
 
