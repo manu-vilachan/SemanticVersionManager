@@ -1,11 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SemanticVersionManager", "SemanticVersionManager\SemanticVersionManager.csproj", "{29EE23EA-062F-4424-914B-48C0C91C383D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SemanticVersionManagerTests", "SemanticVersionManagerTests\SemanticVersionManagerTests.csproj", "{C8FB1E2C-B480-41A7-B361-49EAB87BDE36}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "XMLSample", "XMLSample", "{B9EC7CCE-82A4-42DB-A9C0-18067D8437C5}"
+	ProjectSection(SolutionItems) = preProject
+		VersioningControl.xml = VersioningControl.xml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

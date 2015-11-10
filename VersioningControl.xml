@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- IncrementMethod possible values: None, Auto, Julian, Setted -->
+<!-- BuildReason possible values: Patch (Revertible to Default), Promote -->
+<Definitions>
+  <Definition name="default">
+    <BuildSuffix>
+    </BuildSuffix>
+    <Major>1</Major>
+    <Minor>0</Minor>
+    <Build>0</Build>
+    <Revision>0</Revision>
+    <BuildIncrementMethod>Auto</BuildIncrementMethod>
+    <RevisionIncrementMethod>Auto</RevisionIncrementMethod>
+    <VersionNumber>1.0.0.0</VersionNumber>
+    <VersionInformationalNumber>1.0.0.0</VersionInformationalNumber>
+  </Definition>
+  <Definition type="default">
+    <CommonVersion>
+      <Major>1</Major>
+      <Minor>0</Minor>
+      <Patch>0</Patch>
+      <MajorIncrementMethod>None</MajorIncrementMethod>
+      <MinorIncrementMethod>None</MinorIncrementMethod>
+      <PatchIncrementMethod>None</PatchIncrementMethod>
+      <VersionNumberFormat>{MAJOR}.{MINOR}.{PATCH}[.{REVISION}{BUILD}]</VersionNumberFormat>
+      <VersionInformationalFormat>{MAJOR}.{MINOR}.{PATCH}[.{REVISION}{BUILD]</VersionInformationalFormat>
+      <VersionNamePackageFormat>{MAJOR}.{MINOR}.{PATCH}[.{REVISION}{BUILD]</VersionNamePackageFormat>
+    </CommonVersion>
+    <Branch name="default">
+      <PreReleaseSuffix></PreReleaseSuffix>
+      <Build>0</Build>
+      <Revision>0</Revision>
+      <BuildIncrementMethod>Auto</BuildIncrementMethod>
+      <RevisionIncrementMethod>Julian</RevisionIncrementMethod>
+      <BuildReason>Patch</BuildReason>
+    </Branch>
+    <ActualGeneratedVersion>
+      <VersionNumber>0.1.0.0</VersionNumber>
+      <VersionInformationalNumber>0.1.0.0</VersionInformationalNumber>
+      <VersionNamePackage>0.1.0.0</VersionNamePackage>
+    </ActualGeneratedVersion>
+  </Definition>
+  <Definition type="NonProductive">
+    <CommonVersion>
+      <Major>0</Major>
+      <Minor>1</Minor>
+      <Patch>0</Patch>
+      <MajorIncrementMethod>None</MajorIncrementMethod>
+      <MinorIncrementMethod>None</MinorIncrementMethod>
+      <PatchIncrementMethod>None</PatchIncrementMethod>
+      <VersionNumberFormat>{MAJOR}.{MINOR}.{PATCH}[.{REVISION}{BUILD}]</VersionNumberFormat>
+      <VersionInformationalFormat>{MAJOR}.{MINOR}.{PATCH}[-{PRSUFFIX}{BUILD}.{REVISION}]</VersionInformationalFormat>
+      <VersionNamePackageFormat>{MAJOR}.{MINOR}.{PATCH}[-{PRSUFFIX}{BUILD}]</VersionNamePackageFormat>
+    </CommonVersion>
+    <Branch name="DevNugetter">
+      <PreReleaseSuffix>alpha</PreReleaseSuffix>
+      <Build>0</Build>
+      <Revision>0</Revision>
+      <BuildIncrementMethod>Setted</BuildIncrementMethod>
+      <RevisionIncrementMethod>Julian</RevisionIncrementMethod>
+      <BuildReason>Patch</BuildReason>
+    <ActualGeneratedVersion>
+      <VersionNumber>0.1.0.0</VersionNumber>
+      <VersionInformationalNumber>0.1.0-alpha</VersionInformationalNumber>
+      <VersionNamePackage>0.1.0-alpha</VersionNamePackage>
+    </ActualGeneratedVersion>
+    </Branch>
+    <Branch name="MainNugetter">
+      <PreReleaseSuffix>beta</PreReleaseSuffix>
+      <Build>0</Build>
+      <Revision>0</Revision>
+      <BuildIncrementMethod>Setted</BuildIncrementMethod>
+      <RevisionIncrementMethod>Julian</RevisionIncrementMethod>
+      <ActualGeneratedVersion>
+        <VersionNumber>0.1.0.0</VersionNumber>
+        <VersionInformationalNumber>0.1.0-beta</VersionInformationalNumber>
+        <VersionNamePackage>0.1.0-beta</VersionNamePackage>
+      </ActualGeneratedVersion>
+    </Branch>
+  </Definition>
+  <Definition type="Productive">
+    <CommonVersion>
+      <Major>0</Major>
+      <Minor>1</Minor>
+      <Patch>0</Patch>
+      <MajorIncrementMethod>NoIncrement</MajorIncrementMethod>
+      <MinorIncrementMethod>NoIncrement</MinorIncrementMethod>
+      <PatchIncrementMethod>NoIncrement</PatchIncrementMethod>
+      <VersionNumberFormat>{MAJOR}.{MINOR}.{PATCH}[.{REVISION}{BUILD}]</VersionNumberFormat>
+      <VersionInformationalFormat>{MAJOR}.{MINOR}.{PATCH}[.{REVISION}{BUILD}]</VersionInformationalFormat>
+      <VersionNamePackageFormat>{MAJOR}.{MINOR}.{PATCH}</VersionNamePackageFormat>
+    </CommonVersion>
+    <Branch name="ReleaseCandidateNugetter">
+      <PreReleaseSuffix>rc</PreReleaseSuffix>
+      <Build>0</Build>
+      <Revision>0</Revision>
+      <BuildIncrementMethod>Setted</BuildIncrementMethod>
+      <RevisionIncrementMethod>Julian</RevisionIncrementMethod>
+    </Branch>
+    <Branch name="ReleaseNugetter">
+      <PreReleaseSuffix></PreReleaseSuffix>
+      <Build>0</Build>
+      <Revision>0</Revision>
+      <BuildIncrementMethod>Setted</BuildIncrementMethod>
+      <RevisionIncrementMethod>Julian</RevisionIncrementMethod>
+    </Branch>
+    <LastGenerated>
+      <VersionNumber>0.1.0.0</VersionNumber>
+      <VersionInformationalNumber>0.1.0</VersionInformationalNumber>
+      <VersionNamePackage>0.1.0</VersionNamePackage>
+    </LastGenerated>
+  </Definition>
+  <Definition name="DevNugetter">
+    <BuildSuffix>alpha</BuildSuffix>
+    <Major>0</Major>
+    <Minor>1</Minor>
+    <Build>0</Build>
+    <Revision>0</Revision>
+    <BuildIncrementMethod>Julian</BuildIncrementMethod>
+    <RevisionIncrementMethod>Setted</RevisionIncrementMethod>
+    <VersionNumber>0.1.0.0</VersionNumber>
+    <VersionInformationalNumber>0.1.0-alpha</VersionInformationalNumber>
+  </Definition>
+  <Definition name="MainNugetter">
+    <BuildSuffix>beta</BuildSuffix>
+    <Major>0</Major>
+    <Minor>1</Minor>
+    <Build>0</Build>
+    <Revision>0</Revision>
+    <BuildIncrementMethod>Auto</BuildIncrementMethod>
+    <RevisionIncrementMethod>Setted</RevisionIncrementMethod>
+    <VersionNumber>0.1.0.0</VersionNumber>
+    <VersionInformationalNumber>0.1.0-beta</VersionInformationalNumber>
+  </Definition>
+  <Definition name="ReleaseNugetter">
+    <BuildSuffix>
+    </BuildSuffix>
+    <Major>1</Major>
+    <Minor>0</Minor>
+    <Build>0</Build>
+    <Revision>0</Revision>
+    <BuildIncrementMethod>NoIncrement</BuildIncrementMethod>
+    <RevisionIncrementMethod>NoIncrement</RevisionIncrementMethod>
+    <VersionNumber>1.0.0.0</VersionNumber>
+    <VersionInformationalNumber>1.0.0.0</VersionInformationalNumber>
+  </Definition>
+</Definitions>
