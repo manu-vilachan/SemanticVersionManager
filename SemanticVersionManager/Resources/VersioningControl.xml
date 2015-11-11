@@ -29,27 +29,27 @@
   </Definition>
   <Definition type="NonProductive">
     <CommonVersion>
-      <Major>1</Major>
-      <Minor>2</Minor>
-      <Patch>6</Patch>
+      <Major>0</Major>
+      <Minor>1</Minor>
+      <Patch>0</Patch>
       <MajorIncrementMethod>None</MajorIncrementMethod>
       <MinorIncrementMethod>None</MinorIncrementMethod>
-      <PatchIncrementMethod>Auto</PatchIncrementMethod>
-      <VersionNumberFormat>{MAJOR}.{MINOR}.{PATCH}[.{REVISION}]</VersionNumberFormat>
+      <PatchIncrementMethod>None</PatchIncrementMethod>
+      <VersionNumberFormat>{MAJOR}.{MINOR}.{PATCH}[.{REVISION}{BUILD}]</VersionNumberFormat>
       <VersionInformationalFormat>{MAJOR}.{MINOR}.{PATCH}[-{PRSUFFIX}{BUILD}.{REVISION}]</VersionInformationalFormat>
       <VersionNamePackageFormat>{MAJOR}.{MINOR}.{PATCH}[-{PRSUFFIX}{BUILD}]</VersionNamePackageFormat>
     </CommonVersion>
     <Build name="DevStaging">
       <PreReleaseSuffix>alpha</PreReleaseSuffix>
-      <Build>2</Build>
-      <Revision>2015315</Revision>
-      <BuildIncrementMethod>Auto</BuildIncrementMethod>
+      <Build>0</Build>
+      <Revision>0</Revision>
+      <BuildIncrementMethod>Setted</BuildIncrementMethod>
       <RevisionIncrementMethod>Julian</RevisionIncrementMethod>
-      <ActualGeneratedVersion>
-        <VersionNumber>1.2.6.2015315</VersionNumber>
-        <VersionInformationalNumber>1.2.6-alpha2.2015315</VersionInformationalNumber>
-        <VersionNamePackage>1.2.6-alpha2</VersionNamePackage>
-      </ActualGeneratedVersion>
+    <ActualGeneratedVersion>
+      <VersionNumber>0.1.0.0</VersionNumber>
+      <VersionInformationalNumber>0.1.0-alpha</VersionInformationalNumber>
+      <VersionNamePackage>0.1.0-alpha</VersionNamePackage>
+    </ActualGeneratedVersion>
     </Build>
     <Build name="PreStaging">
       <PreReleaseSuffix>beta</PreReleaseSuffix>
@@ -67,8 +67,8 @@
   <Definition type="Productive">
     <CommonVersion>
       <Major>1</Major>
-      <Minor>2</Minor>
-      <Patch>4</Patch>
+      <Minor>0</Minor>
+      <Patch>0</Patch>
       <MajorIncrementMethod>None</MajorIncrementMethod>
       <MinorIncrementMethod>None</MinorIncrementMethod>
       <PatchIncrementMethod>None</PatchIncrementMethod>

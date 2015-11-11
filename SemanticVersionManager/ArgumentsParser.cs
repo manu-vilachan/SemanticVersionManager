@@ -7,11 +7,18 @@
     {
         private readonly string argDelimitier;
 
-        private const string notNamedArgKey = "NotNamedArg";
+        private readonly string notNamedArgKey = "NotNamedArg";
 
-        public ArgumentsParser(string argumentDelimitier)
+        private readonly bool ignoreCase = false;
+
+        public ArgumentsParser(string argumentDelimitier, bool ignoreKeysCase = false)
         {
             argDelimitier = argumentDelimitier;
+            ignoreCase = ignoreKeysCase;
+            if (ignoreCase)
+            {
+                notNamedArgKey = notNamedArgKey.ToLower();
+            }
         }
 
         public Dictionary<string, List<string>> Parse(string[] args, int? minArgsExpected = null, int? maxArgsExpected = null)
@@ -47,6 +54,11 @@
 
                     // if the value is empty then it's a simple argument without value
                     var key = args[i].Replace(this.argDelimitier, string.Empty);
+                    if (ignoreCase)
+                    {
+                        key = key.ToLower();
+                    }
+
                     if (!parsedArguments.ContainsKey(key))
                     {
                         parsedArguments.Add(key, !string.IsNullOrWhiteSpace(value) ? new List<string> { value } : null);
