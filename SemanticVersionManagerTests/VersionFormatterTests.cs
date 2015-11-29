@@ -464,20 +464,20 @@
             Assert.AreEqual(expectedVersion, result);
         }
 
-        [TestMethod]
-        public void RegEx_Test()
-        {
-            var pattern = "{MAJOR}.{MINOR}.{PATCH}.{REVISION}";
-            var pattern2 = "{MAJOR}.{MINOR}.{PATCH}[.{BUILD}{REVISION}]";
+        //[TestMethod]
+        //public void RegEx_Test()
+        //{
+        //    var pattern = "{MAJOR}.{MINOR}.{PATCH}.{REVISION}";
+        //    var pattern2 = "{MAJOR}.{MINOR}.{PATCH}[.{BUILD}{REVISION}]";
 
-            // expression to detect variables
-            var regex = new Regex(@"(?<=\{)[^}]+(?=\})");
+        //    // expression to detect variables
+        //    var regex = new Regex(@"(?<=\{)[^}]+(?=\})");
 
-            // expression to detect optional variables
-            var regex2 = new Regex(@"(?<=\[)[^]]+(?=\])");
+        //    // expression to detect optional variables
+        //    var regex2 = new Regex(@"(?<=\[)[^]]+(?=\])");
 
 
-            var result = regex2.Matches(pattern2);
-        }
+        //    var result = regex2.Matches(pattern2);
+        //}
     }
 }

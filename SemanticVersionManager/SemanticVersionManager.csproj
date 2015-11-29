@@ -48,10 +48,19 @@
     <Compile Include="ArgumentsParser.cs" />
     <Compile Include="IncrementMethod.cs" />
     <Compile Include="Parameters.cs" />
+    <Compile Include="Exceptions\ProcessCommandException.cs" />
+    <Compile Include="PatternConstants.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VersionFormatter.cs" />
     <Compile Include="VersioningAction.cs" />
+    <Compile Include="VersioningOptions.cs" />
+    <Compile Include="VersionNumbers.cs" />
+    <Compile Include="VersionNumbersIncrement.cs" />
+    <Compile Include="VersionNumbersPattern.cs" />
+    <Compile Include="VersionProcessDefinition.cs" />
+    <Compile Include="Exceptions\WrongArgumentsException.cs" />
+    <Compile Include="XmlConstants.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

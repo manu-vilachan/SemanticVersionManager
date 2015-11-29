@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Resources;
+using System.IO;
+using System.Xml.Linq;
+using System.Xml.XPath;
+using SemanticVersionManager.Exceptions;
 
 namespace SemanticVersionManager
 {
-    using System.IO;
-    using System.Xml.Linq;
-    using System.Xml.XPath;
 
     public class Program
     {
         public static Dictionary<string, List<string>> Arguments { get; set; }
-        
+
         /// <summary>
         /// Invoke with arguments
         /// <para>VersionControlPath: path to version control xml file with the definition.</para>
@@ -25,33 +27,47 @@ namespace SemanticVersionManager
         {
             var argsParser = new ArgumentsParser("-", true);
             Arguments = argsParser.Parse(args);
+            var returnCode = 0;
 
+            try
+            {
+                switch (InferCommandFromArgs())
+                {
+                    case Commands.GenerateVC:
+                        ValidateFileGenerationArguments();
+                        GenerateVCFile();
+                        break;
+                    case Commands.DoVersioning:
+                        ValidateDoVersioningArguments();
+                        DoVersioning();
+                        break;
+                    default:
+                        PrintHelp(Commands.NotRecognized);
+                        break;
+                }
+            }
+            catch (WrongArgumentsException ex)
+            {
+                PrintHelp(ex.Command);
+                returnCode = ex.HResult;
+            }
+            catch (ProcessCommandException ex)
+            {
+                Console.WriteLine($"Something went wrong.\n{ex.Message}");
+                returnCode = ex.HResult;
+            }
+
+            return returnCode;
+        }
+
+        private static string InferCommandFromArgs()
+        {
             if (Arguments.ContainsKey(Parameters.GenerateVC.TL()))
             {
-                return ParseGenerateVC();
+                return Commands.GenerateVC;
             }
 
-            if (!Arguments.ContainsKey(Parameters.VCPath.TL()) || !Arguments[Parameters.VCPath.TL()].Any())
-            {
-                PrintHelp(Parameters.VCPath);
-                return 1;
-            }
-
-            if (!File.Exists(Arguments[Parameters.VCPath.TL()].First()))
-            {
-                Console.WriteLine("File not found:{Arguments[Parameters.VCPath].First()}");
-                return 1;
-            }
-
-            if (!ValidateAction())
-            {
-                PrintHelp(Parameters.Action);
-                return 1;
-            }
-
-            DoVersioning();
-
-            return 0;
+            return Commands.DoVersioning;
         }
 
         private static bool ValidateAction()
@@ -84,6 +100,31 @@ namespace SemanticVersionManager
             return result;
         }
 
+        private static void ValidateDoVersioningArguments()
+        {
+            var valid = !Arguments.ContainsKey(Parameters.VCPath.TL()) || !Arguments[Parameters.VCPath.TL()].Any();
+
+            if (!File.Exists(Arguments[Parameters.VCPath.TL()].First()))
+            {
+                throw new FileNotFoundException($"File not found:{Arguments[Parameters.VCPath].First()}", Arguments[Parameters.VCPath].First());
+            }
+
+            valid = valid || !ValidateAction();
+
+            if (!valid)
+            {
+                throw new WrongArgumentsException {Command = Commands.DoVersioning};
+            }
+        }
+
+        private static void ValidateFileGenerationArguments()
+        {
+            if (Arguments.ContainsKey(Parameters.GenerateVC) && Arguments.Count > 1)
+            {
+                throw new WrongArgumentsException {Command = Commands.GenerateVC};
+            }
+        }
+
         private static bool ValidInt(string number)
         {
             int notUsed;
@@ -92,167 +133,86 @@ namespace SemanticVersionManager
 
         private static void DoVersioning()
         {
-            var fileName = Arguments[Parameters.VCPath.TL()].First();
-            var definitionName = (Arguments.ContainsKey(Parameters.Definition.TL()) && Arguments[Parameters.Definition.TL()].Any())
-                                     ? Arguments[Parameters.Definition.TL()].First()
-                                     : "default";
-            var buildName = (Arguments.ContainsKey(Parameters.BuildName.TL()) && Arguments[Parameters.BuildName.TL()].Any())
-                                ? Arguments[Parameters.BuildName.TL()].First()
-                                : "default";
-            var action = VersioningAction.Patch;
-            var dstDefinition = string.Empty;
-            var dstBuild = string.Empty;
-            string major = "0", minor = "0", patch = "0";
+            var vOptions = new VersioningOptions(Arguments);
 
-            if (Arguments.ContainsKey(Parameters.Action.TL()))
-            {
-                var argAction = Arguments[Parameters.Action.TL()].First();
-                action = (VersioningAction)Enum.Parse(typeof(VersioningAction), argAction, true);
-                switch (action)
-                {
-                    case VersioningAction.Promote:
-                        dstDefinition = Arguments[Parameters.DestinationDefinition.TL()].First();
-                        dstBuild = Arguments[Parameters.DestinationBuild.TL()].First();
-                        // validate that destination has a version lower than source
-                        break;
-                    case VersioningAction.SetNewVersion:
-                        major = Arguments[Parameters.Major.TL()].First();
-                        minor = Arguments[Parameters.Minor.TL()].First();
-                        patch = Arguments[Parameters.Patch.TL()].First();
-                        break;
-                }
-            }
+            var xml = XDocument.Load(vOptions.FileName);
+            var element = xml.XPathSelectElement($"//Definitions/Definition[@type=\"{vOptions.Target.Name}\"]");
 
-            var xml = XDocument.Load(fileName);
-            var element = xml.XPathSelectElement($"//Definitions/Definition[@type=\"{definitionName}\"]");
-            XElement common;
-            List<XElement> buildValues;
-
-            switch (action)
+            switch (vOptions.Action)
             {
                 case VersioningAction.SetNewVersion:
-                        common = element.Element("CommonVersion");
-                        common.Element("Major").Value = major;
-                        common.Element("Minor").Value = minor;
-                        common.Element("Patch").Value = patch;
-
-                        var toReset = element.Descendants()
-                            .SelectMany(xe => xe.Descendants())
-                            .Where(xe => xe.Name == "BuildName" || xe.Name == "Revision")
-                            .ToList();
-                        toReset.ForEach(x => x.Value = "0");
+                    SetNewVersion(ref element, vOptions);
                     break;
                 case VersioningAction.Promote:
-                    if (dstDefinition.ToLower() == definitionName.ToLower())
-                    {
-                        throw new ApplicationException("The destination definition can't be the same in a promote operation.");
-                    }
-
-                    var dstElement = xml.XPathSelectElement($"//Definitions/Definition[@type=\"{dstDefinition}\"]");
-                    common = element.Element("CommonVersion");
-                    major = common.Element("Major").Value;
-                    minor = common.Element("Minor").Value;
-                    patch = common.Element("Patch").Value;
-
-                    common = dstElement.Element("CommonVersion");
-                    common.Element("Major").Value = major;
-                    common.Element("Minor").Value = minor;
-                    common.Element("Patch").Value = patch;
-
-                    buildValues = dstElement.Elements("BuildName")
-                            .Where(xe => xe.Attribute("name").Value == dstBuild)
-                            .Descendants()
-                            .Where(xe => xe.Name == "BuildName" || xe.Name == "Revision")
-                            .ToList();
-                    buildValues.ForEach(x => x.Value = "0");
+                    var targetElement = xml.XPathSelectElement($"//Definitions/Definition[@type=\"{vOptions.Destination.Name}\"]");
+                    PromoteVersion(ref element, targetElement, vOptions);
                     break;
                 case VersioningAction.Patch:
-                    DoPatching(element, buildName);
+                    DoPatching(ref element, vOptions.Target.Build);
                     break;
             }
 
-            xml.Save(fileName);
-            return;
+            xml.Save(vOptions.FileName);
         }
 
-        private static void DoPatching(XElement element, string buildName)
+        private static void PromoteVersion(ref XElement sourceElement, XElement targetElement, VersioningOptions versioningOptions)
         {
-            var common = element.Element("CommonVersion");
-            var major = common.Element("Major").Value;
-            var minor = common.Element("Minor").Value;
-            var patch = common.Element("Patch").Value;
-            var majorIM = (IncrementMethod)Enum.Parse(typeof(IncrementMethod), common.Element("MajorIncrementMethod").Value, true);
-            var minorIM = (IncrementMethod)Enum.Parse(typeof(IncrementMethod), common.Element("MinorIncrementMethod").Value, true);
-            var patchIM = (IncrementMethod)Enum.Parse(typeof(IncrementMethod), common.Element("PatchIncrementMethod").Value, true);
-            var versionPattern = common.Element("VersionNumberFormat").Value;
-            var versionInfoPattern = common.Element("VersionInformationalFormat").Value;
-            var versionPkgPattern = common.Element("VersionNamePackageFormat").Value;
+            var common = sourceElement.Element(XmlConstants.CommonVersion);
+            var major = common.Element(XmlConstants.Major).Value;
+            var minor = common.Element(XmlConstants.Minor).Value;
+            var patch = common.Element(XmlConstants.Patch).Value;
 
-            var buildElem = element.Descendants("Build").First(xe => xe.Attribute("name").Value == buildName);
-            var suffix = buildElem.Element("PreReleaseSuffix").Value;
-            var build = buildElem.Element("Build").Value;
-            var rev = buildElem.Element("Revision").Value;
-            var buildIM = (IncrementMethod)Enum.Parse(typeof(IncrementMethod), buildElem.Element("BuildIncrementMethod").Value, true);
-            var revIM = (IncrementMethod)Enum.Parse(typeof(IncrementMethod), buildElem.Element("RevisionIncrementMethod").Value, true);
+            common = targetElement.Element(XmlConstants.CommonVersion);
+            common.Element(XmlConstants.Major).Value = major;
+            common.Element(XmlConstants.Minor).Value = minor;
+            common.Element(XmlConstants.Patch).Value = patch;
 
-            var majorSetted = string.Empty;
-            var minorSetted = string.Empty;
-            var patchSetted = string.Empty;
-            var buildSetted = string.Empty;
-            var revSetted = string.Empty;
-
-            if (majorIM == IncrementMethod.Setted)
-                majorSetted = Arguments[Parameters.Major].First();
-            if (minorIM == IncrementMethod.Setted)
-                minorSetted = Arguments[Parameters.Minor].First();
-            if (patchIM == IncrementMethod.Setted)
-                patchSetted = Arguments[Parameters.Patch].First();
-            if (buildIM == IncrementMethod.Setted)
-                buildSetted = Arguments[Parameters.Build].First();
-            if (revIM == IncrementMethod.Setted)
-                revSetted = Arguments[Parameters.Revision].First();
-
-            major = ProcessIncrementMethod(major, majorIM, majorSetted);
-            minor = ProcessIncrementMethod(minor, minorIM, minorSetted);
-            patch = ProcessIncrementMethod(patch, patchIM, patchSetted);
-            build = ProcessIncrementMethod(build, buildIM, buildSetted);
-            rev = ProcessIncrementMethod(rev, revIM, revSetted);
-
-            var formatter = new VersionFormatter();
-            var values = new Dictionary<string, string>
-                             {
-                                 { "MAJOR", major },
-                                 { "MINOR", minor },
-                                 { "PATCH", patch },
-                                 { "BUILD", build },
-                                 { "REVISION", rev },
-                                 { "PRSUFFIX", suffix }
-                             };
-            var version = formatter.GetVersionFormatted(versionPattern, values);
-            var versionInfo = formatter.GetVersionFormatted(versionInfoPattern, values);
-            var versionPkg = formatter.GetVersionFormatted(versionPkgPattern, values);
-
-            common.Element("Major").Value = major;
-            common.Element("Minor").Value = minor;
-            common.Element("Patch").Value = patch;
-            buildElem.Element("Build").Value = build;
-            buildElem.Element("Revision").Value = rev;
-
-            buildElem.Element("ActualGeneratedVersion").Element("VersionNumber").Value = version;
-            buildElem.Element("ActualGeneratedVersion").Element("VersionInformationalNumber").Value = versionInfo;
-            buildElem.Element("ActualGeneratedVersion").Element("VersionNamePackage").Value = versionPkg;
+            var buildValues = targetElement.Elements(Parameters.BuildName)
+                .Where(xe => xe.Attribute("name").Value == versioningOptions.Destination.Build)
+                .Descendants()
+                .Where(xe => xe.Name == Parameters.BuildName || xe.Name == Parameters.Revision)
+                .ToList();
+            buildValues.ForEach(x => x.Value = "0");
         }
 
-        private static string ProcessIncrementMethod(string number, IncrementMethod incrementMethod, string settedValue = null)
+        private static void SetNewVersion(ref XElement element, VersioningOptions versioningOptions)
         {
+            var common = element.Element(XmlConstants.CommonVersion);
+            common.Element(XmlConstants.Major).Value = versioningOptions.Numbers.Major;
+            common.Element(XmlConstants.Minor).Value = versioningOptions.Numbers.Minor;
+            common.Element(XmlConstants.Patch).Value = versioningOptions.Numbers.Patch;
+
+            var toReset = element.Descendants()
+                .SelectMany(xe => xe.Descendants())
+                .Where(xe => xe.Name == Parameters.Build || xe.Name == Parameters.Revision)
+                .ToList();
+            toReset.ForEach(x => x.Value = "0");
+        }
+
+        private static void DoPatching(ref XElement element, string buildName)
+        {
+            VersionProcessDefinition versionDefinition = new VersionProcessDefinition();
             var formatter = new VersionFormatter();
+
+            versionDefinition.Read(element, buildName);
+
+            versionDefinition.DoIncrements(ProcessIncrementMethod, Arguments, formatter);
+
+            versionDefinition.ApplyPatterns(formatter.GetVersionFormatted);
+
+            versionDefinition.Write(ref element, buildName);
+        }
+
+        private static string ProcessIncrementMethod(VersionFormatter formatter, string number, IncrementMethod incrementMethod, string settedValue = null)
+        {
             switch (incrementMethod)
             {
                 case IncrementMethod.Setted:
                     if (string.IsNullOrWhiteSpace(settedValue))
                     {
-                        throw new ArgumentNullException(nameof(settedValue));
+                        throw new ArgumentNullException(nameof(settedValue), $"The value for variable {{{number}}} was not setted.");
                     }
+
                     number = settedValue;
                     break;
                 case IncrementMethod.Julian:
@@ -265,26 +225,16 @@ namespace SemanticVersionManager
             return number;
         }
 
-        private static int ParseGenerateVC()
+        private static void GenerateVCFile()
         {
-            int retValue = 0;
-            if (Arguments.ContainsKey(Parameters.GenerateVC) && Arguments.Count > 1)
-            {
-                PrintHelp(Parameters.GenerateVC);
-                return 1;
-            }
-
-            string fileName = "VersioningControl.xml";
-            if (Arguments[Parameters.GenerateVC].Any())
-            {
-                fileName = Arguments[Parameters.GenerateVC].First();
-            }
+            var fileName = Arguments[Parameters.GenerateVC].Any()
+                ? Arguments[Parameters.GenerateVC].First()
+                : "VersioningControl.xml";
 
             var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("SemanticVersionManager.Resources.VersioningControl.xml");
             if (stream == null)
             {
-                Console.WriteLine("A versioning control file cannot be created. The embedded resource is not found.");
-                return 1;
+                throw new MissingManifestResourceException("A versioning control file cannot be created. The embedded resource is not found.");
             }
 
             FileStream file = null;
@@ -298,28 +248,21 @@ namespace SemanticVersionManager
             }
             catch (UnauthorizedAccessException ex)
             {
-                Console.WriteLine("A versioning control file cannot be created:\n{ex.Message}");
-                retValue = ex.HResult;
+                throw new ProcessCommandException("A versioning control file cannot be created by unauthorized access.", ex);
             }
             catch (IOException ex)
             {
-                Console.WriteLine("A versioning control file cannot be created:\n{ex.Message}");
-                retValue = ex.HResult;
+                throw new ProcessCommandException($"A versioning control file cannot be created by an unknown error.\n{ex.Message}", ex);
             }
             catch (ArgumentException ex)
             {
-                Console.WriteLine("A versioning control file cannot be created:\n{ex.Message}");
-                retValue = ex.HResult;
+                throw new ProcessCommandException($"A versioning control file cannot be created.\n{ex.Message}", ex);
             }
             finally
             {
-                if (file != null)
-                {
-                    file.Close();
-                }
+                file?.Close();
+                stream?.Close();
             }
-
-            return retValue;
         }
 
         private static void PrintHelp(string helpPart)
@@ -332,11 +275,6 @@ namespace SemanticVersionManager
                 Console.WriteLine("If this argument is used then no other Arguments can be specified.");
                 Console.WriteLine("i.e.:\n\tSemanticVersionManager.exe -GenerateVC \"c:\\projects\\vc.xml\"");
             }
-        }
-
-        private static VersioningAction GetAction(string[] args)
-        {
-            return VersioningAction.Patch;
         }
     }
 }

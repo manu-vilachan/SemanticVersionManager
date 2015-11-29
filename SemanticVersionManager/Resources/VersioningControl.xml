@@ -13,14 +13,14 @@
       <VersionInformationalFormat>{MAJOR}.{MINOR}.{PATCH}[.{REVISION}{BUILD]</VersionInformationalFormat>
       <VersionNamePackageFormat>{MAJOR}.{MINOR}.{PATCH}[.{REVISION}{BUILD]</VersionNamePackageFormat>
     </CommonVersion>
-    <Branch name="default">
+    <Build name="default">
       <PreReleaseSuffix></PreReleaseSuffix>
       <Build>0</Build>
       <Revision>0</Revision>
       <BuildIncrementMethod>Auto</BuildIncrementMethod>
       <RevisionIncrementMethod>Julian</RevisionIncrementMethod>
       <BuildReason>Patch</BuildReason>
-    </Branch>
+    </Build>
     <ActualGeneratedVersion>
       <VersionNumber>0.1.0.0</VersionNumber>
       <VersionInformationalNumber>0.1.0.0</VersionInformationalNumber>

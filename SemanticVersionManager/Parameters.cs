@@ -31,4 +31,13 @@ namespace SemanticVersionManager
             return s.ToLower();
         }
     }
+
+    public static class Commands
+    {
+        public const string DoVersioning = "DoVersioning";
+
+        public const string GenerateVC = "GenerateVC";
+
+        public const string NotRecognized = "NotRecognized";
+    }
 }
