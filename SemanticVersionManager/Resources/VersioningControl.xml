@@ -9,8 +9,8 @@
       <MajorIncrementMethod>None</MajorIncrementMethod>
       <MinorIncrementMethod>None</MinorIncrementMethod>
       <PatchIncrementMethod>None</PatchIncrementMethod>
-      <VersionNumberFormat>{MAJOR}.{MINOR}.{PATCH}[.{REVISION}{BUILD}]</VersionNumberFormat>
-      <VersionInformationalFormat>{MAJOR}.{MINOR}.{PATCH}[.{REVISION}{BUILD]</VersionInformationalFormat>
+      <VersionNumberFormat>{MAJOR}.{MINOR}.{PATCH}[.{BUILD}]</VersionNumberFormat>
+      <VersionInformationalFormat>{MAJOR}.{MINOR}.{PATCH}[.{BUILD}-{REVISION}]</VersionInformationalFormat>
       <VersionNamePackageFormat>{MAJOR}.{MINOR}.{PATCH}[.{REVISION}{BUILD]</VersionNamePackageFormat>
     </CommonVersion>
     <Build name="default">
@@ -19,7 +19,6 @@
       <Revision>0</Revision>
       <BuildIncrementMethod>Auto</BuildIncrementMethod>
       <RevisionIncrementMethod>Julian</RevisionIncrementMethod>
-      <BuildReason>Patch</BuildReason>
     </Build>
     <ActualGeneratedVersion>
       <VersionNumber>0.1.0.0</VersionNumber>
@@ -34,8 +33,8 @@
       <Patch>0</Patch>
       <MajorIncrementMethod>None</MajorIncrementMethod>
       <MinorIncrementMethod>None</MinorIncrementMethod>
-      <PatchIncrementMethod>None</PatchIncrementMethod>
-      <VersionNumberFormat>{MAJOR}.{MINOR}.{PATCH}[.{REVISION}{BUILD}]</VersionNumberFormat>
+      <PatchIncrementMethod>Auto</PatchIncrementMethod>
+      <VersionNumberFormat>{MAJOR}.{MINOR}.{PATCH}[.{BUILD}]</VersionNumberFormat>
       <VersionInformationalFormat>{MAJOR}.{MINOR}.{PATCH}[-{PRSUFFIX}{BUILD}.{REVISION}]</VersionInformationalFormat>
       <VersionNamePackageFormat>{MAJOR}.{MINOR}.{PATCH}[-{PRSUFFIX}{BUILD}]</VersionNamePackageFormat>
     </CommonVersion>
@@ -72,8 +71,8 @@
       <MajorIncrementMethod>None</MajorIncrementMethod>
       <MinorIncrementMethod>None</MinorIncrementMethod>
       <PatchIncrementMethod>None</PatchIncrementMethod>
-      <VersionNumberFormat>{MAJOR}.{MINOR}.{PATCH}[.{REVISION}{BUILD}]</VersionNumberFormat>
-      <VersionInformationalFormat>{MAJOR}.{MINOR}.{PATCH}[.{REVISION}{BUILD}]</VersionInformationalFormat>
+      <VersionNumberFormat>{MAJOR}.{MINOR}.{PATCH}[.{BUILD}]</VersionNumberFormat>
+      <VersionInformationalFormat>{MAJOR}.{MINOR}.{PATCH}[.{BUILD}-{REVISION}]</VersionInformationalFormat>
       <VersionNamePackageFormat>{MAJOR}.{MINOR}.{PATCH}</VersionNamePackageFormat>
     </CommonVersion>
     <Build name="ProStaging">

@@ -88,9 +88,9 @@ namespace SemanticVersionManager
             switch (action)
             {
                 case VersioningAction.SetNewVersion:
-                    result = (Arguments.ContainsKey(Parameters.Major.TL()) && Arguments[Parameters.Major.TL()].Any() && ValidInt(Arguments[Parameters.Major.TL()].First()))
-                             && (Arguments.ContainsKey(Parameters.Minor.TL()) && Arguments[Parameters.Minor.TL()].Any() && ValidInt(Arguments[Parameters.Minor.TL()].First()))
-                             && (Arguments.ContainsKey(Parameters.Patch.TL()) && Arguments[Parameters.Patch.TL()].Any() && ValidInt(Arguments[Parameters.Patch.TL()].First()));
+                    result = (Arguments.ContainsKey(Parameters.Major.TL()) && Arguments[Parameters.Major.TL()].Any() && ValidateVersionNumbers(Arguments[Parameters.Major.TL()].First()))
+                             && (Arguments.ContainsKey(Parameters.Minor.TL()) && Arguments[Parameters.Minor.TL()].Any() && ValidateVersionNumbers(Arguments[Parameters.Minor.TL()].First()))
+                             && (Arguments.ContainsKey(Parameters.Patch.TL()) && Arguments[Parameters.Patch.TL()].Any() && ValidateVersionNumbers(Arguments[Parameters.Patch.TL()].First()));
                     break;
                 case VersioningAction.Promote:
                     result = Arguments.ContainsKey(Parameters.DestinationDefinition.TL()) && Arguments[Parameters.DestinationDefinition.TL()].Any();
@@ -102,14 +102,15 @@ namespace SemanticVersionManager
 
         private static void ValidateDoVersioningArguments()
         {
-            var valid = !Arguments.ContainsKey(Parameters.VCPath.TL()) || !Arguments[Parameters.VCPath.TL()].Any();
+            var safeArgs = new SafeDictionay<string, List<string>>(Arguments);
+            bool valid = safeArgs[Parameters.VCPath.TL()]?.Any() ?? false;
 
-            if (!File.Exists(Arguments[Parameters.VCPath.TL()].First()))
+            if (safeArgs.ContainsKey(Parameters.GenerateVC.TL()) && !File.Exists(safeArgs[Parameters.VCPath.TL()].First()))
             {
                 throw new FileNotFoundException($"File not found:{Arguments[Parameters.VCPath].First()}", Arguments[Parameters.VCPath].First());
             }
 
-            valid = valid || !ValidateAction();
+            valid = valid && ValidateAction();
 
             if (!valid)
             {
@@ -125,10 +126,10 @@ namespace SemanticVersionManager
             }
         }
 
-        private static bool ValidInt(string number)
+        private static bool ValidateVersionNumbers(string number)
         {
             int notUsed;
-            return int.TryParse(number, out notUsed);
+            return int.TryParse(number, out notUsed) || number.Equals(Parameters.Current.TL());
         }
 
         private static void DoVersioning()
@@ -145,17 +146,20 @@ namespace SemanticVersionManager
                     break;
                 case VersioningAction.Promote:
                     var targetElement = xml.XPathSelectElement($"//Definitions/Definition[@type=\"{vOptions.Destination.Name}\"]");
-                    PromoteVersion(ref element, targetElement, vOptions);
+                    PromoteVersion(ref element, ref targetElement, vOptions);
                     break;
                 case VersioningAction.Patch:
                     DoPatching(ref element, vOptions.Target.Build);
+                    break;
+                case VersioningAction.ReBuild:
+                    DoPatching(ref element, vOptions.Target.Build, true);
                     break;
             }
 
             xml.Save(vOptions.FileName);
         }
 
-        private static void PromoteVersion(ref XElement sourceElement, XElement targetElement, VersioningOptions versioningOptions)
+        private static void PromoteVersion(ref XElement sourceElement, ref XElement targetElement, VersioningOptions versioningOptions)
         {
             var common = sourceElement.Element(XmlConstants.CommonVersion);
             var major = common.Element(XmlConstants.Major).Value;
@@ -167,10 +171,10 @@ namespace SemanticVersionManager
             common.Element(XmlConstants.Minor).Value = minor;
             common.Element(XmlConstants.Patch).Value = patch;
 
-            var buildValues = targetElement.Elements(Parameters.BuildName)
-                .Where(xe => xe.Attribute("name").Value == versioningOptions.Destination.Build)
+            var buildValues = targetElement.Elements(XmlConstants.Build)
+                .Where(xe => xe.Attribute("name").Value.Equals(versioningOptions.Destination.Build, StringComparison.InvariantCultureIgnoreCase))
                 .Descendants()
-                .Where(xe => xe.Name == Parameters.BuildName || xe.Name == Parameters.Revision)
+                .Where(xe => xe.Name == XmlConstants.Build || xe.Name == XmlConstants.Revision)
                 .ToList();
             buildValues.ForEach(x => x.Value = "0");
         }
@@ -189,12 +193,12 @@ namespace SemanticVersionManager
             toReset.ForEach(x => x.Value = "0");
         }
 
-        private static void DoPatching(ref XElement element, string buildName)
+        private static void DoPatching(ref XElement element, string buildName, bool reBuild = false)
         {
             VersionProcessDefinition versionDefinition = new VersionProcessDefinition();
             var formatter = new VersionFormatter();
 
-            versionDefinition.Read(element, buildName);
+            versionDefinition.Read(element, buildName, reBuild);
 
             versionDefinition.DoIncrements(ProcessIncrementMethod, Arguments, formatter);
 
@@ -227,9 +231,9 @@ namespace SemanticVersionManager
 
         private static void GenerateVCFile()
         {
-            var fileName = Arguments[Parameters.GenerateVC].Any()
-                ? Arguments[Parameters.GenerateVC].First()
-                : "VersioningControl.xml";
+            var fileName = Arguments[Parameters.GenerateVC.TL()] != null
+                               ? Arguments[Parameters.GenerateVC.TL()].First()
+                               : "VersioningControl.xml";
 
             var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("SemanticVersionManager.Resources.VersioningControl.xml");
             if (stream == null)
@@ -265,15 +269,21 @@ namespace SemanticVersionManager
             }
         }
 
-        private static void PrintHelp(string helpPart)
+        private static void PrintHelp(string command)
         {
-            if (helpPart.TL() == Parameters.GenerateVC.TL())
+            switch (command)
             {
-                Console.WriteLine($"-{Parameters.GenerateVC}");
-                Console.WriteLine("This argument can be used to generate a sample xml with build definitions.");
-                Console.WriteLine("Can provide a full path (including file name) where generate the xml,\notherwise the local folder is used with filename VersioningControl.xml.");
-                Console.WriteLine("If this argument is used then no other Arguments can be specified.");
-                Console.WriteLine("i.e.:\n\tSemanticVersionManager.exe -GenerateVC \"c:\\projects\\vc.xml\"");
+                case Commands.GenerateVC:
+                    Console.WriteLine($"-{Parameters.GenerateVC}");
+                    Console.WriteLine("This argument can be used to generate a sample xml with build definitions.");
+                    Console.WriteLine("Can provide a full path (including file name) where generate the xml,\notherwise the local folder is used with filename VersioningControl.xml.");
+                    Console.WriteLine("If this argument is used then no other arguments should be specified.");
+                    Console.WriteLine("i.e.:\n\tSemanticVersionManager.exe -GenerateVC \"c:\\projects\\vc.xml\"");
+                    break;
+                case Commands.DoVersioning:
+                    break;
+                default:
+                    break;
             }
         }
     }

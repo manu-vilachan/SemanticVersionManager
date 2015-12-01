@@ -13,10 +13,10 @@ namespace SemanticVersionManager
 
         public VersionNumbersPattern Patterns { get; set; } = new VersionNumbersPattern();
 
-        public void Read(XElement element, string buildName)
+        public void Read(XElement element, string buildName, bool ignorMainIncrements)
         {
             var common = element.Element(XmlConstants.CommonVersion);
-            var buildElem = element.Descendants(XmlConstants.Build).First(xe => xe.Attribute("name").Value == buildName);
+            var buildElem = element.Descendants(XmlConstants.Build).First(xe => xe.Attribute("name").Value.Equals(buildName, StringComparison.InvariantCultureIgnoreCase));
 
             Numbers.Major = common.Element(XmlConstants.Major).Value;
             Numbers.Minor = common.Element(XmlConstants.Minor).Value;
@@ -25,9 +25,13 @@ namespace SemanticVersionManager
             Numbers.Revision = buildElem.Element(XmlConstants.Revision).Value;
             Numbers.Suffix = buildElem.Element(XmlConstants.PreReleaseSuffix).Value;
 
-            Increments.Major = (IncrementMethod)Enum.Parse(typeof(IncrementMethod), common.Element(XmlConstants.MajorIncrementMethod).Value, true);
-            Increments.Minor = (IncrementMethod)Enum.Parse(typeof(IncrementMethod), common.Element(XmlConstants.MinorIncrementMethod).Value, true);
-            Increments.Patch = (IncrementMethod)Enum.Parse(typeof(IncrementMethod), common.Element(XmlConstants.PatchIncrementMethod).Value, true);
+            if(!ignorMainIncrements)
+            {
+                Increments.Major = (IncrementMethod)Enum.Parse(typeof(IncrementMethod), common.Element(XmlConstants.MajorIncrementMethod).Value, true);
+                Increments.Minor = (IncrementMethod)Enum.Parse(typeof(IncrementMethod), common.Element(XmlConstants.MinorIncrementMethod).Value, true);
+                Increments.Patch = (IncrementMethod)Enum.Parse(typeof(IncrementMethod), common.Element(XmlConstants.PatchIncrementMethod).Value, true);
+            }
+
             Increments.Build = (IncrementMethod)Enum.Parse(typeof(IncrementMethod), buildElem.Element(XmlConstants.BuildIncrementMethod).Value, true);
             Increments.Revision = (IncrementMethod)Enum.Parse(typeof(IncrementMethod), buildElem.Element(XmlConstants.RevisionIncrementMethod).Value, true);
 
@@ -39,7 +43,7 @@ namespace SemanticVersionManager
         public void Write(ref XElement element, string buildName)
         {
             var common = element.Element(XmlConstants.CommonVersion);
-            var buildElem = element.Descendants(XmlConstants.Build).First(xe => xe.Attribute("name").Value == buildName);
+            var buildElem = element.Descendants(XmlConstants.Build).First(xe => xe.Attribute("name").Value.Equals(buildName, StringComparison.InvariantCultureIgnoreCase));
 
             common.Element(XmlConstants.Major).Value = Numbers.Major;
             common.Element(XmlConstants.Minor).Value = Numbers.Minor;
@@ -54,11 +58,12 @@ namespace SemanticVersionManager
 
         public void DoIncrements(Func<VersionFormatter, string, IncrementMethod, string, string> processIncrementMethod, Dictionary<string, List<string>> arguments, VersionFormatter formatter)
         {
-            Numbers.Major = processIncrementMethod(formatter, Numbers.Major, Increments.Major, arguments[Parameters.Major]?.First());
-            Numbers.Minor = processIncrementMethod(formatter, Numbers.Minor, Increments.Minor, arguments[Parameters.Minor]?.First());
-            Numbers.Patch = processIncrementMethod(formatter, Numbers.Patch, Increments.Patch, arguments[Parameters.Patch]?.First());
-            Numbers.Build = processIncrementMethod(formatter, Numbers.Build, Increments.Build, arguments[Parameters.Build]?.First());
-            Numbers.Revision = processIncrementMethod(formatter, Numbers.Revision, Increments.Revision, arguments[Parameters.Revision]?.First());
+            var safeArgs = new SafeDictionay<string, List<string>>(arguments);
+            Numbers.Major = processIncrementMethod(formatter, Numbers.Major, Increments.Major, safeArgs[Parameters.Major.TL()]?.First());
+            Numbers.Minor = processIncrementMethod(formatter, Numbers.Minor, Increments.Minor, safeArgs[Parameters.Minor.TL()]?.First());
+            Numbers.Patch = processIncrementMethod(formatter, Numbers.Patch, Increments.Patch, safeArgs[Parameters.Patch.TL()]?.First());
+            Numbers.Build = processIncrementMethod(formatter, Numbers.Build, Increments.Build, safeArgs[Parameters.Build.TL()]?.First());
+            Numbers.Revision = processIncrementMethod(formatter, Numbers.Revision, Increments.Revision, safeArgs[Parameters.Revision.TL()]?.First());
         }
 
         public void ApplyPatterns(Func<string, Dictionary<string, string>, string> patternTransform)

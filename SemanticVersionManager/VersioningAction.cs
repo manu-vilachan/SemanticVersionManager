@@ -4,6 +4,7 @@
     {
         Patch,
         Promote,
-        SetNewVersion
+        SetNewVersion,
+        ReBuild
     }
 }

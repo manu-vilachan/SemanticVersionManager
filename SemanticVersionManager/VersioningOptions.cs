@@ -44,12 +44,15 @@ namespace SemanticVersionManager
                 case VersioningAction.Patch:
                     break;
                 case VersioningAction.Promote:
-                    if (string.Equals(Destination.Name, Target.Name, StringComparison.CurrentCultureIgnoreCase))
+                    if (string.Equals(Destination.Name, Target.Name, StringComparison.InvariantCultureIgnoreCase)
+                        && string.Equals(Destination.Build, Target.Build, StringComparison.InvariantCultureIgnoreCase))
                     {
                         throw new ProcessCommandException("The destination definition can't be the same in a promote operation.");
                     }
                     break;
                 case VersioningAction.SetNewVersion:
+                    break;
+                case VersioningAction.ReBuild:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

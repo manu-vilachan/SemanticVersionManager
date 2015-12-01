@@ -2,6 +2,8 @@ namespace SemanticVersionManager
 {
     public static class Parameters
     {
+        public const string Current = "Current";
+
         public const string GenerateVC = "GenerateVC";
 
         public const string VCPath = "VCPath";

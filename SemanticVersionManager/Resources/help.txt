@@ -1,0 +1,7 @@
+﻿-GenerateVC
+   This argument can be used to generate a sample xml with build definitions.
+   Can provide a full path (including file name) where generate the xml,
+   otherwise the local folder is used with filename VersioningControl.xml.
+   If this argument is used then no other arguments should be specified.
+
+   i.e.:  SemanticVersionManager.exe -GenerateVC "c:\projects\vc.xml"
