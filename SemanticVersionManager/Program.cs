@@ -172,7 +172,7 @@ namespace SemanticVersionManager
             common.Element(XmlConstants.Patch).Value = patch;
 
             var buildValues = targetElement.Elements(XmlConstants.Build)
-                .Where(xe => xe.Attribute("name").Value.Equals(versioningOptions.Destination.Build, StringComparison.InvariantCultureIgnoreCase))
+                .Where(xe => xe.Attribute("name")!=null && xe.Attribute("name").Value.Equals(versioningOptions.Destination.Build, StringComparison.InvariantCultureIgnoreCase))
                 .Descendants()
                 .Where(xe => xe.Name == XmlConstants.Build || xe.Name == XmlConstants.Revision)
                 .ToList();

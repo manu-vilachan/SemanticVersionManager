@@ -16,7 +16,7 @@ namespace SemanticVersionManager
         public void Read(XElement element, string buildName, bool ignorMainIncrements)
         {
             var common = element.Element(XmlConstants.CommonVersion);
-            var buildElem = element.Descendants(XmlConstants.Build).First(xe => xe.Attribute("name").Value.Equals(buildName, StringComparison.InvariantCultureIgnoreCase));
+            var buildElem = element.Descendants(XmlConstants.Build).First(xe => xe.Attribute("name")!=null && xe.Attribute("name").Value.Equals(buildName, StringComparison.InvariantCultureIgnoreCase));
 
             Numbers.Major = common.Element(XmlConstants.Major).Value;
             Numbers.Minor = common.Element(XmlConstants.Minor).Value;
@@ -43,7 +43,7 @@ namespace SemanticVersionManager
         public void Write(ref XElement element, string buildName)
         {
             var common = element.Element(XmlConstants.CommonVersion);
-            var buildElem = element.Descendants(XmlConstants.Build).First(xe => xe.Attribute("name").Value.Equals(buildName, StringComparison.InvariantCultureIgnoreCase));
+            var buildElem = element.Descendants(XmlConstants.Build).First(xe => xe.Attribute("name")!=null && xe.Attribute("name").Value.Equals(buildName, StringComparison.InvariantCultureIgnoreCase));
 
             common.Element(XmlConstants.Major).Value = Numbers.Major;
             common.Element(XmlConstants.Minor).Value = Numbers.Minor;

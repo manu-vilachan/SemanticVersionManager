@@ -11,7 +11,7 @@
       <PatchIncrementMethod>None</PatchIncrementMethod>
       <VersionNumberFormat>{MAJOR}.{MINOR}.{PATCH}[.{BUILD}]</VersionNumberFormat>
       <VersionInformationalFormat>{MAJOR}.{MINOR}.{PATCH}[.{BUILD}-{REVISION}]</VersionInformationalFormat>
-      <VersionNamePackageFormat>{MAJOR}.{MINOR}.{PATCH}[.{REVISION}{BUILD]</VersionNamePackageFormat>
+      <VersionNamePackageFormat>{MAJOR}.{MINOR}.{PATCH}</VersionNamePackageFormat>
     </CommonVersion>
     <Build name="default">
       <PreReleaseSuffix></PreReleaseSuffix>
@@ -19,12 +19,12 @@
       <Revision>0</Revision>
       <BuildIncrementMethod>Auto</BuildIncrementMethod>
       <RevisionIncrementMethod>Julian</RevisionIncrementMethod>
+      <ActualGeneratedVersion>
+        <VersionNumber>0.1.0.0</VersionNumber>
+        <VersionInformationalNumber>0.1.0.0</VersionInformationalNumber>
+        <VersionNamePackage>0.1.0.0</VersionNamePackage>
+      </ActualGeneratedVersion>
     </Build>
-    <ActualGeneratedVersion>
-      <VersionNumber>0.1.0.0</VersionNumber>
-      <VersionInformationalNumber>0.1.0.0</VersionInformationalNumber>
-      <VersionNamePackage>0.1.0.0</VersionNamePackage>
-    </ActualGeneratedVersion>
   </Definition>
   <Definition type="NonProductive">
     <CommonVersion>
@@ -35,7 +35,7 @@
       <MinorIncrementMethod>None</MinorIncrementMethod>
       <PatchIncrementMethod>Auto</PatchIncrementMethod>
       <VersionNumberFormat>{MAJOR}.{MINOR}.{PATCH}[.{BUILD}]</VersionNumberFormat>
-      <VersionInformationalFormat>{MAJOR}.{MINOR}.{PATCH}[-{PRSUFFIX}{BUILD}.{REVISION}]</VersionInformationalFormat>
+      <VersionInformationalFormat>{MAJOR}.{MINOR}.{PATCH}[.{PRSUFFIX}{BUILD}-{REVISION}]</VersionInformationalFormat>
       <VersionNamePackageFormat>{MAJOR}.{MINOR}.{PATCH}[-{PRSUFFIX}{BUILD}]</VersionNamePackageFormat>
     </CommonVersion>
     <Build name="DevStaging">
@@ -44,11 +44,11 @@
       <Revision>0</Revision>
       <BuildIncrementMethod>Setted</BuildIncrementMethod>
       <RevisionIncrementMethod>Julian</RevisionIncrementMethod>
-    <ActualGeneratedVersion>
-      <VersionNumber>0.1.0.0</VersionNumber>
-      <VersionInformationalNumber>0.1.0-alpha</VersionInformationalNumber>
-      <VersionNamePackage>0.1.0-alpha</VersionNamePackage>
-    </ActualGeneratedVersion>
+      <ActualGeneratedVersion>
+        <VersionNumber>0.1.0.0</VersionNumber>
+        <VersionInformationalNumber>0.1.0-alpha</VersionInformationalNumber>
+        <VersionNamePackage>0.1.0-alpha</VersionNamePackage>
+      </ActualGeneratedVersion>
     </Build>
     <Build name="PreStaging">
       <PreReleaseSuffix>beta</PreReleaseSuffix>
@@ -81,11 +81,11 @@
       <Revision>0</Revision>
       <BuildIncrementMethod>Setted</BuildIncrementMethod>
       <RevisionIncrementMethod>Julian</RevisionIncrementMethod>
+      <ActualGeneratedVersion>
+        <VersionNumber>1.0.0.0</VersionNumber>
+        <VersionInformationalNumber>1.0.0</VersionInformationalNumber>
+        <VersionNamePackage>1.0.0</VersionNamePackage>
+      </ActualGeneratedVersion>
     </Build>
-    <ActualGeneratedVersion>
-      <VersionNumber>1.0.0.0</VersionNumber>
-      <VersionInformationalNumber>1.0.0</VersionInformationalNumber>
-      <VersionNamePackage>1.0.0</VersionNamePackage>
-    </ActualGeneratedVersion>
   </Definition>
 </Definitions>
