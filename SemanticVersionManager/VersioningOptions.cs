@@ -33,7 +33,7 @@ namespace SemanticVersionManager
             };
 
             ParseAction(arguments);
-            ProcessAction(arguments);
+            ValidateAction(arguments);
             ValidateOptions();
         }
 
@@ -68,7 +68,7 @@ namespace SemanticVersionManager
             }
         }
 
-        private void ProcessAction(Dictionary<string, List<string>> arguments)
+        private void ValidateAction(Dictionary<string, List<string>> arguments)
         {
             switch (Action)
             {

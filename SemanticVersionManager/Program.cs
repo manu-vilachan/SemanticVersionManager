@@ -12,6 +12,8 @@ namespace SemanticVersionManager
 
     public class Program
     {
+        private const string VersionControlResource = "SemanticVersionManager.Resources.VersioningControl.xml";
+
         public static Dictionary<string, List<string>> Arguments { get; set; }
 
         /// <summary>
@@ -39,7 +41,9 @@ namespace SemanticVersionManager
                         break;
                     case Commands.DoVersioning:
                         ValidateDoVersioningArguments();
+                        OverrideArgumentsFromXml();
                         DoVersioning();
+                        ClearArgumentsFromXml();
                         break;
                     default:
                         PrintHelp(Commands.NotRecognized);
@@ -58,6 +62,52 @@ namespace SemanticVersionManager
             }
 
             return returnCode;
+        }
+
+        private static void ClearArgumentsFromXml()
+        {
+            var fileName = Arguments[Parameters.VCPath.TL()].First();
+            var xml = XDocument.Load(fileName);
+            var element = xml.XPathSelectElement($"//VersionControl/OverrideParameters");
+            foreach (var xElement in element.Elements())
+            {
+                xElement.Value = string.Empty;
+            }
+            xml.Save(fileName);
+        }
+
+        private static void OverrideArgumentsFromXml()
+        {
+            var fileName = Arguments[Parameters.VCPath.TL()].First();
+            var xml = XDocument.Load(fileName);
+            var element = xml.XPathSelectElement($"//VersionControl/OverrideParameters");
+
+            UpdateArgument(Parameters.Action, element);
+            UpdateArgument(Parameters.Definition, element);
+            UpdateArgument(Parameters.BuildName, element);
+            UpdateArgument(Parameters.Major, element);
+            UpdateArgument(Parameters.Minor, element);
+            UpdateArgument(Parameters.Patch, element);
+            UpdateArgument(Parameters.Build, element);
+            UpdateArgument(Parameters.Revision, element);
+            UpdateArgument(Parameters.DestinationDefinition, element);
+            UpdateArgument(Parameters.DestinationBuild, element);
+        }
+
+        private static void UpdateArgument(string parameter, XElement element)
+        {
+            if (element.Elements().Any(e => e.Name == parameter)
+                && !string.IsNullOrEmpty(element.Elements().First(e => e.Name == parameter).Value))
+            {
+                if (Arguments.ContainsKey(parameter.TL()))
+                {
+                    Arguments[parameter.TL()].Insert(0, element.Elements().First(e => e.Name == parameter).Value);
+                }
+                else
+                {
+                    Arguments.Add(parameter.TL(), new List<string> { element.Elements().First(e => e.Name == parameter).Value });
+                }
+            }
         }
 
         private static string InferCommandFromArgs()
@@ -177,6 +227,7 @@ namespace SemanticVersionManager
                 .Where(xe => xe.Name == XmlConstants.Build || xe.Name == XmlConstants.Revision)
                 .ToList();
             buildValues.ForEach(x => x.Value = "0");
+            DoPatching(ref targetElement, versioningOptions.Destination.Build);
         }
 
         private static void SetNewVersion(ref XElement element, VersioningOptions versioningOptions)
@@ -191,6 +242,7 @@ namespace SemanticVersionManager
                 .Where(xe => xe.Name == Parameters.Build || xe.Name == Parameters.Revision)
                 .ToList();
             toReset.ForEach(x => x.Value = "0");
+            DoPatching(ref element, versioningOptions.Target.Build);
         }
 
         private static void DoPatching(ref XElement element, string buildName, bool reBuild = false)
@@ -235,7 +287,7 @@ namespace SemanticVersionManager
                                ? Arguments[Parameters.GenerateVC.TL()].First()
                                : "VersioningControl.xml";
 
-            var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("SemanticVersionManager.Resources.VersioningControl.xml");
+            var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(VersionControlResource);
             if (stream == null)
             {
                 throw new MissingManifestResourceException("A versioning control file cannot be created. The embedded resource is not found.");

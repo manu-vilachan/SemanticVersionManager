@@ -39,5 +39,7 @@
         public const string VersionInformationalNumber = "VersionInformationalNumber";
 
         public const string VersionNamePackage = "VersionNamePackage";
+
+        public const string VersioningAction = "VersioningAction";
     }
 }
